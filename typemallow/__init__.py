@@ -77,7 +77,7 @@ def __get_ts_interface(schema, context='default'):
     ts_fields = []
     for key, value in schema._declared_fields.items():
         print(vars(value))
-        if type(value) is not str and value.enum:
+        if hasattr(value, 'enum'):
             print(vars(value.enum))
             print("entered enum block")
             # add to enums to be exported with _generate_enums_exports
