@@ -35,7 +35,7 @@ def ts_interface(context='default'):
 
 def _get_ts_type(value):
     if type(value) is fields.Nested:
-        if type(ts_type) is str:
+        if type(value.nested) is str:
             ts_type = value.nested.replace('Schema', '')
         else:
             ts_type = value.nested.__name__.replace('Schema', '')
