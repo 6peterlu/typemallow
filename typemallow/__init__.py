@@ -76,6 +76,7 @@ def __get_ts_interface(schema, context='default'):
     name = schema.__name__.replace('Schema', '')
     ts_fields = []
     for key, value in schema._declared_fields.items():
+        print(vars(value))
         print(value.validate)
         print(type(value.validate))
         if value.validate and type(value.validate) is validate.OneOf:
