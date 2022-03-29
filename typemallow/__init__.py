@@ -76,7 +76,10 @@ def __get_ts_interface(schema, context='default'):
     name = schema.__name__.replace('Schema', '')
     ts_fields = []
     for key, value in schema._declared_fields.items():
+        print(value.validate)
+        print(type(value.validate))
         if value.validate and type(value.validate) is validate.OneOf:
+            print("entered enum block")
             # add to enums to be exported with _generate_enums_exports
             __enums[context] = {}
             __enums[context][_snake_to_pascal_case(key)] = value.validate.choices
