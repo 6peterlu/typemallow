@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 from .mappings import mappings
 
 __schemas = dict()
@@ -35,7 +35,10 @@ def ts_interface(context='default'):
 
 def _get_ts_type(value):
     if type(value) is fields.Nested:
-        ts_type = value.nested.__name__
+        if type(ts_type) is str:
+            ts_type = value.nested.replace('Schema', '')
+        else:
+            ts_type = value.nested.__name__.replace('Schema', '')
         if value.many:
             ts_type += '[]'
     elif type(value) is fields.List:
@@ -55,8 +58,13 @@ def _get_ts_type(value):
 
     return ts_type
 
+def _snake_to_pascal_case(key):
+    '''
+    Converts snake_case strings to PascalCase
+    '''
+    return ''.join(s for s in key.replace('_', ' ').title() if not s.isspace())
 
-def __get_ts_interface(schema):
+def __get_ts_interface(schema, context='default'):
     '''
 
     Generates and returns a Typescript Interface by iterating
