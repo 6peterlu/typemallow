@@ -2,6 +2,7 @@ from marshmallow import Schema, fields
 from .mappings import mappings
 
 __schemas = dict()
+__enums = dict()
 
 def ts_interface(context='default'):
     '''
@@ -67,13 +68,11 @@ def __get_ts_interface(schema):
     name = schema.__name__.replace('Schema', '')
     ts_fields = []
     for key, value in schema._declared_fields.items():
-        if type(value) is fields.Nested:
-            if type(value.nested) is str:
-                ts_type = value.nested.replace('Schema', '')
-            else:
-                ts_type = value.nested.__name__.replace('Schema', '')
-            if value.many:
-                ts_type += '[]'
+        if value.validate and type(value.validate) is validate.OneOf:
+            # add to enums to be exported with _generate_enums_exports
+            __enums[context] = {}
+            __enums[context][_snake_to_pascal_case(key)] = value.validate.choices
+            ts_type = _snake_to_pascal_case(key)
         else:
             ts_type = _get_ts_type(value)
 
@@ -82,6 +81,27 @@ def __get_ts_interface(schema):
         )
     ts_fields = '\n'.join(ts_fields)
     return f'export interface {name} {{\n{ts_fields}\n}}\n\n'
+
+def _generate_enums_exports(context='default'):
+    '''
+    Generates export statements for each enum found in schemas' with 'oneof' validations
+    '''
+    enum_exports = []
+    for key, choices_tuple in __enums[context].iteritems():
+        enum_fields = []
+        for choice in choices_tuple:
+            enum_fields.append(
+                f'\t{choice.upper()} = "{choice}",'
+            )
+        enum_fields = '\n'.join(enum_fields)
+        enum_exports.append(
+            f'export enum {key} {{\n{enum_fields}\n}}'
+        )
+
+    if (len(enum_exports) > 0):
+        return f'{enum_exports}\n\n'
+    else:
+        return ''
 
 
 def generate_ts(output_path, context='default'):
@@ -99,3 +119,4 @@ def generate_ts(output_path, context='default'):
     with open(output_path, 'w') as output_file:
         interfaces = [__get_ts_interface(schema) for schema in __schemas[context]]
         output_file.write(''.join(interfaces))
+        output_file.write(''.join(_generate_enums_exports(context)))
