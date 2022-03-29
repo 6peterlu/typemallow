@@ -106,7 +106,7 @@ def _generate_enums_exports(context='default'):
             )
         enum_fields = '\n'.join(enum_fields)
         enum_exports.append(
-            f'export enum {key} {{\n{enum_fields}\n}}'
+            f'export enum {key} {f"\n{enum_fields}\n"}'
         )
 
     if (len(enum_exports) > 0):
