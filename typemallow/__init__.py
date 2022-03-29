@@ -109,7 +109,7 @@ def _generate_enums_exports(context='default'):
             f'export enum {key}\n{enum_fields}\n'
         )
 
-    if (len(enum_exports) > 0):
+    if len(enum_exports) > 0:
         return f'{enum_exports}\n\n'
     else:
         return ''
