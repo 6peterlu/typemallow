@@ -82,7 +82,7 @@ def __get_ts_interface(schema, context='default'):
             print("entered enum block")
             # add to enums to be exported with _generate_enums_exports
             __enums[context] = {}
-            __enums[context][_snake_to_pascal_case(key)] = value.validate.choices
+            __enums[context][_snake_to_pascal_case(key)] = value.enum._member_names_
             ts_type = _snake_to_pascal_case(key)
         else:
             ts_type = _get_ts_type(value)
@@ -102,7 +102,7 @@ def _generate_enums_exports(context='default'):
         enum_fields = []
         for choice in choices_tuple:
             enum_fields.append(
-                f'\t{choice.upper()} = "{choice}",'
+                f'\t{choice} = "{choice.lower()}",'
             )
         enum_fields = '\n'.join(enum_fields)
         enum_exports.append(
